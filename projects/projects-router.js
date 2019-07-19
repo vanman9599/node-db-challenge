@@ -43,17 +43,32 @@ router.get('/:ids/projectActions', (req, res) => {
     Projects.getProjectByID(ids)
         .then(project => {
             const { id, description, name, completed } = project;
+            if(completed===0){
+                status = false
+            }else{
+                status = true
+            }
             Actions.getActionsByID(ids)
                 .then(actions => {
+                    for(let i =0; i < actions.length;i++){
+                        if(actions[i].completed === 0){
+                            actions[i].completed = false;
+                        }else{
+                            actions[i].completed = true;
+                        }
+                    }
                     const projectObject = {
                         id: id, 
                         description: description, 
                         name: name, 
-                        completed: completed, 
+                        completed: status, 
                         actions: actions
                     }
                     res.status(200).json(projectObject);
                 })
+                .catch(() => {
+                    res.status(500).json({ message: 'Failed to get project actions' });
+                  });
         })
 })
 
